@@ -2,8 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:my_project/models/catalog.dart';
+import 'package:my_project/utils/routes.dart';
 import 'package:my_project/widgets/drawer.dart';
 import 'package:my_project/widgets/item_widget.dart';
+import 'package:my_project/widgets/themes.dart';
+import 'package:velocity_x/velocity_x.dart';
+
+import '../widgets/home_widgets/catalog_header.dart';
+import '../widgets/home_widgets/catalog_list.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -33,40 +39,43 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Center(child: Text("WEBFORT")),
+      backgroundColor: context.canvasColor,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.pushNamed(context, MyRoutes.cartRoute),
+        backgroundColor: context.theme.buttonColor,
+        child: Icon(Icons.add_shopping_cart_outlined),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: (CatalogModel.items != null && CatalogModel.items.isNotEmpty)
-            ? GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 16),
-                itemCount: CatalogModel.items.length,
-                itemBuilder: (context, index) {
-                  final item = CatalogModel.items[index];
-                  return Card(
-                    clipBehavior: Clip.antiAlias,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    child: GridTile(
-                      header: Container(
-                        child: Text(item.name),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(),
-                      ),
-                      child: Image.network(item.image),
-                      footer: Text(item.price.toString()),
-                    ),
-                  );
-                })
-            : Center(
-                child: CircularProgressIndicator(),
-              ),
-      ),
-      drawer: MyDrawer(),
+      body: SafeArea(
+          child: Container(
+              padding: Vx.m32,
+              child: Column(
+                children: [
+                  CatalogHeader(),
+                  if (CatalogModel.items != null &&
+                      CatalogModel.items.isNotEmpty)
+                    CatalogList().py16().expand()
+                  else
+                    CircularProgressIndicator().centered().expand(),
+                ],
+              ))),
     );
+  }
+}
+
+class CatalogImage extends StatelessWidget {
+  final String image;
+
+  const CatalogImage({super.key, required this.image}) : assert(image != null);
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.network(image)
+        .box
+        .rounded
+        .p8
+        .color(MyTheme.creameColor)
+        .make()
+        .p16();
+    // .w40(context);
   }
 }
